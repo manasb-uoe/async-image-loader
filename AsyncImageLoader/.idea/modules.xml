@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/AsyncImageLoader.iml" filepath="$PROJECT_DIR$/AsyncImageLoader.iml" />
+      <module fileurl="file://$PROJECT_DIR$/asyncimageloader-library/asyncimageloader-library.iml" filepath="$PROJECT_DIR$/asyncimageloader-library/asyncimageloader-library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/asyncimageloader-sample-app/asyncimageloader-sample-app.iml" filepath="$PROJECT_DIR$/asyncimageloader-sample-app/asyncimageloader-sample-app.iml" />
+    </modules>
+  </component>
+</project>
+
