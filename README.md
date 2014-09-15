@@ -5,6 +5,12 @@ This library can be used for asynchronous image loading, displaying and caching 
 
 ![Screenshot_2014-09-12-11-15-42.png](https://bitbucket.org/repo/LnzAa6/images/1539677683-Screenshot_2014-09-12-11-15-42.png) ![Screenshot_2014-09-12-11-16-42.png](https://bitbucket.org/repo/LnzAa6/images/1607332766-Screenshot_2014-09-12-11-16-42.png) ![Screenshot_2014-09-12-11-17-34.png](https://bitbucket.org/repo/LnzAa6/images/1681662346-Screenshot_2014-09-12-11-17-34.png)
 
+#** Features **#
+
+* Asynchronous multithreaded image loading 
+* Various customization options using `AsyncImageLoaderConfig` (thread pool size, placeholder image, image downsampling, memory and file cache locations, etc.)
+* Retrieve progress as a percentage while an image is being downlaoded 
+
 #** How do I get set up? **#
 
 1. [Download asyncimageloader-library.aar](https://bitbucket.org/enthusiast94/asyncimageloader/downloads/asyncimageloader-library.aar)
