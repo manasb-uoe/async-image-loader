@@ -188,14 +188,20 @@ public class AsyncImageLoader {
     }
 
     /**
-     * Clears file and memory cache.
+     * Clears memory cache.
      */
-    public void clearCache() {
-        if (fileCache != null) {
-            fileCache.clearCache();
-        }
+    public void clearMemoryCache() {
         if (memoryCache != null) {
             memoryCache.evictAll();
+        }
+    }
+
+    /**
+     * Clears file cache.
+     */
+    public void clearFileCache() {
+        if (fileCache != null) {
+            fileCache.clearCache();
         }
     }
 

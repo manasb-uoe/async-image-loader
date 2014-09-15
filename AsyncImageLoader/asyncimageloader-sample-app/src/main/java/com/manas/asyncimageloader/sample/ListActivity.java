@@ -127,7 +127,8 @@ public class ListActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_clear_cache) {
-            AsyncImageLoader.getInstance().clearCache();
+            AsyncImageLoader.getInstance().clearFileCache();
+            AsyncImageLoader.getInstance().clearMemoryCache();
             Toast.makeText(this, "Cache successfully cleared", Toast.LENGTH_SHORT).show();
         }
         return true;
