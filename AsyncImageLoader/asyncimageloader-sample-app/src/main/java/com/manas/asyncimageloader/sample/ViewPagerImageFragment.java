@@ -27,7 +27,7 @@ public class ViewPagerImageFragment extends Fragment {
         final ImageView imageView = (ImageView) view.findViewById(R.id.imageView);
         final ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
         String url = getArguments().getString("url");
-        AsyncImageLoader.getInstance().loadImage(url, new AsyncImageLoader.LoadCallback() {
+        AsyncImageLoader.getInstance().loadImage(url, false, new AsyncImageLoader.LoadCallback() {
             @Override
             public void onCompleted(Bitmap bitmap, Exception e) {
                 if (bitmap != null && e == null) {

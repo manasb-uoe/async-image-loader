@@ -91,8 +91,9 @@ public class AsyncImageLoader {
      * Downloads the requested image asynchronously(if not already present in cache) and sets it on the provided ImageView.
      * @param imageView  ImageView on which bitmap needs to be set
      * @param url URL of the image that needs to be downloaded
+     * @param isResource boolean indicating whether the requested url is a resource id or an actual url
      */
-    public void displayImage(ImageView imageView, String url) {
+    public void displayImage(ImageView imageView, String url, boolean isResource) {
         imageViews.put(imageView, url);
         Bitmap bitmap = memoryCache.get(url);
         if (bitmap != null) {
@@ -100,7 +101,7 @@ public class AsyncImageLoader {
         }
         else {
             imageView.setImageDrawable(placeHolder);
-            queueImage(url, imageView, null, null, null);
+            queueImage(url, imageView, isResource, null, null, null);
         }
     }
 
@@ -108,11 +109,12 @@ public class AsyncImageLoader {
      * Downloads the requested image asynchronously(if not already present in cache) and sets it on the provided ImageView.
      * @param imageView  ImageView on which bitmap needs to be set
      * @param url URL of the image that needs to be downloaded
+     * @param isResource boolean indicating whether the requested url is a resource id or an actual url
      * @param dimensions Target dimensions of the image (used for down-sampling the bitmap before loading into memory)
      * @param progressCallback A ProgressCallback is used to get progress while an image is being downloaded
      * @param loadCallback A LoadCallback is used to retrieve the requested bitmap.
      */
-    public void displayImage(ImageView imageView, String url, ImageDimensions dimensions, LoadCallback loadCallback, ProgressCallback progressCallback) {
+    public void displayImage(ImageView imageView, String url, boolean isResource, ImageDimensions dimensions, LoadCallback loadCallback, ProgressCallback progressCallback) {
         imageViews.put(imageView, url);
         Bitmap bitmap = memoryCache.get(url);
         if (bitmap != null) {
@@ -120,16 +122,17 @@ public class AsyncImageLoader {
         }
         else {
             imageView.setImageDrawable(placeHolder);
-            queueImage(url, imageView, dimensions, loadCallback, progressCallback);
+            queueImage(url, imageView, isResource, dimensions, loadCallback, progressCallback);
         }
     }
 
     /**
      * Downloads the requested image asynchronously(if not already present in cache) and returns it using the provided LoadCallback instance.
      * @param url URL of the image that needs to be downloaded
+     * @param isResource boolean indicating whether the requested url is a resource id or an actual url
      * @param loadCallback A LoadCallback is used to retrieve the requested bitmap.
      */
-    public void loadImage(String url, LoadCallback loadCallback) {
+    public void loadImage(String url, boolean isResource, LoadCallback loadCallback) {
         //first, check if image exists in memory cache
         Bitmap bitmap = memoryCache.get(url);
         if (bitmap != null) {
@@ -140,17 +143,18 @@ public class AsyncImageLoader {
         }
 
         //now, get it from fileCache OR download it from internet
-        queueImage(url, null, null, loadCallback, null);
+        queueImage(url, null, isResource, null, loadCallback, null);
     }
 
     /**
      * Downloads the requested image asynchronously(if not already present in cache) and returns it using the provided LoadCallback instance.
      * @param url URL of the image that needs to be downloaded
+     * @param isResource boolean indicating whether the requested url is a resource id or an actual url
      * @param dimensions Target dimensions of the image (used for down-sampling the bitmap before loading into memory)
      * @param loadCallback A LoadCallback is used to retrieve the requested bitmap.
      * @param progressCallback A ProgressCallback is used to get progress while an image is being downloaded
      */
-    public void loadImage(String url, ImageDimensions dimensions, LoadCallback loadCallback, ProgressCallback progressCallback) {
+    public void loadImage(String url, boolean isResource, ImageDimensions dimensions, LoadCallback loadCallback, ProgressCallback progressCallback) {
         //first, check if image exists in memory cache
         Bitmap bitmap = memoryCache.get(url);
         if (bitmap != null) {
@@ -161,7 +165,7 @@ public class AsyncImageLoader {
         }
 
         //now, get it from fileCache OR download it from internet
-        queueImage(url, null, dimensions, loadCallback, progressCallback);
+        queueImage(url, null, isResource, dimensions, loadCallback, progressCallback);
     }
 
     /**
@@ -205,8 +209,8 @@ public class AsyncImageLoader {
         }
     }
 
-    private void queueImage(String url, ImageView imageView, ImageDimensions dimensions, LoadCallback loadCallback, ProgressCallback progressCallback) {
-        ImageToLoad imageToLoad = new ImageToLoad(url, imageView, dimensions, loadCallback, progressCallback);
+    private void queueImage(String url, ImageView imageView, boolean isResource, ImageDimensions dimensions, LoadCallback loadCallback, ProgressCallback progressCallback) {
+        ImageToLoad imageToLoad = new ImageToLoad(url, imageView, isResource, dimensions, loadCallback, progressCallback);
         executorService.submit(new ImageLoader(imageToLoad));
     }
 
@@ -214,14 +218,16 @@ public class AsyncImageLoader {
 
         private String url;
         private ImageView imageView;
+        private boolean isResource;
         private float reqWidth;
         private float reqHeight;
         private LoadCallback loadCallback;
         private ProgressCallback progressCallback;
 
-        public ImageToLoad(String url, ImageView imageView, ImageDimensions dimensions, LoadCallback loadCallback, ProgressCallback progressCallback) {
+        public ImageToLoad(String url, ImageView imageView, boolean isResource, ImageDimensions dimensions, LoadCallback loadCallback, ProgressCallback progressCallback) {
             this.url = url;
             this.imageView = imageView;
+            this.isResource = isResource;
             if (dimensions != null) {
                 this.reqWidth = dimensions.getReqWidth();
                 this.reqHeight = dimensions.getReqHeight();
@@ -311,62 +317,68 @@ public class AsyncImageLoader {
     private Bitmap getBitmap(ImageToLoad imageToLoad) {
         Bitmap bitmap = null;
 
-        //first, check if bitmap exists in fileCache
-        File imageFile = fileCache.getFile(imageToLoad.url);
-        if (imageFile.exists()) {
-            bitmap = decodeImageFile(imageFile.getAbsolutePath(), imageToLoad.reqWidth, imageToLoad.reqHeight);
-            if (bitmap != null) {
+        if (imageToLoad.isResource) {
+            bitmap = decodeImageResource(Integer.parseInt(imageToLoad.url), imageToLoad.reqWidth, imageToLoad.reqHeight);
+            return bitmap;
+        }
+        else {
+            //first, check if bitmap exists in fileCache
+            File imageFile = fileCache.getFile(imageToLoad.url);
+            if (imageFile.exists()) {
+                bitmap = decodeImageFile(imageFile.getAbsolutePath(), imageToLoad.reqWidth, imageToLoad.reqHeight);
+                if (bitmap != null) {
+                    if (imageToLoad.loadCallback != null) {
+                        handler.post(new RegisterCallback(imageToLoad.loadCallback, bitmap, null));
+                    }
+                    return bitmap;
+                }
+            }
+
+            //now, attempt to download it from the internet
+            HttpURLConnection hConn = null;
+            InputStream is = null;
+            OutputStream os = null;
+            try {
+                hConn = (HttpURLConnection) (new URL(imageToLoad.url).openConnection());
+                hConn.setReadTimeout(30000);
+                hConn.setConnectTimeout(30000);
+                is = hConn.getInputStream();
+                os = new FileOutputStream(imageFile);
+
+                //add to file cache
+                copyStream(is, os, hConn.getContentLength(), imageToLoad.progressCallback);
+
+                bitmap = decodeImageFile(imageFile.getAbsolutePath(), imageToLoad.reqWidth, imageToLoad.reqHeight);
+
                 if (imageToLoad.loadCallback != null) {
                     handler.post(new RegisterCallback(imageToLoad.loadCallback, bitmap, null));
                 }
                 return bitmap;
             }
-        }
-
-        //now, attempt to download it from the internet
-        HttpURLConnection hConn = null;
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            hConn = (HttpURLConnection) (new URL(imageToLoad.url).openConnection());
-            hConn.setReadTimeout(30000);
-            hConn.setConnectTimeout(30000);
-            is = hConn.getInputStream();
-            os = new FileOutputStream(imageFile);
-
-            //add to file cache
-            copyStream(is, os, hConn.getContentLength(), imageToLoad.progressCallback);
-
-            bitmap = decodeImageFile(imageFile.getAbsolutePath(), imageToLoad.reqWidth, imageToLoad.reqHeight);
-
-            if (imageToLoad.loadCallback != null) {
-                handler.post(new RegisterCallback(imageToLoad.loadCallback, bitmap, null));
-            }
-            return bitmap;
-        }
-        catch (IOException e) {
-            if (imageToLoad.loadCallback != null) {
-                handler.post(new RegisterCallback(imageToLoad.loadCallback, null, e));
-            }
-            e.printStackTrace();
-            return null;
-        }
-        finally {
-            if (hConn != null) {
-                hConn.disconnect();
-            }
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+            catch (IOException e) {
+                if (imageToLoad.loadCallback != null) {
+                    handler.post(new RegisterCallback(imageToLoad.loadCallback, null, e));
                 }
+                e.printStackTrace();
+                return null;
             }
-            if (os != null) {
-                try {
-                    os.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+            finally {
+                if (hConn != null) {
+                    hConn.disconnect();
+                }
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (os != null) {
+                    try {
+                        os.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -453,6 +465,7 @@ public class AsyncImageLoader {
 
     private static Bitmap decodeImageFile(String imageFilePath, float reqWidth, float reqHeight) {
         Bitmap bitmap = null;
+
         if (reqWidth != 0f && reqHeight != 0f) {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
@@ -465,6 +478,28 @@ public class AsyncImageLoader {
         else {
             bitmap = BitmapFactory.decodeFile(imageFilePath);
         }
+
+        return bitmap;
+    }
+
+    private Bitmap decodeImageResource(int resId, float reqWidth, float reqHeight) {
+        Bitmap bitmap = null;
+
+        if (reqWidth != 0f && reqHeight != 0f) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeResource(res, resId, options);
+            int bitmapWidth = options.outWidth;
+            int bitmapHeight = options.outHeight;
+            int scaleFactor = Math.max((int) Math.round(bitmapWidth/reqWidth), (int) Math.round(bitmapHeight/reqHeight));
+            options.inSampleSize = scaleFactor;
+            options.inJustDecodeBounds = false;
+            bitmap = BitmapFactory.decodeResource(res, resId, options);
+        }
+        else {
+            bitmap = BitmapFactory.decodeResource(res, resId);
+        }
+
         return bitmap;
     }
 }

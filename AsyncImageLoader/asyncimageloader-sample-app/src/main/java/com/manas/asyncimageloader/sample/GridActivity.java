@@ -86,7 +86,7 @@ public class GridActivity extends Activity {
                 holder = (ViewHolder) row.getTag();
             }
 
-            AsyncImageLoader.getInstance().displayImage(holder.imageView, imageUrls[pos], new ImageDimensions(400f, 400f), null, null);
+            AsyncImageLoader.getInstance().displayImage(holder.imageView, imageUrls[pos], false, new ImageDimensions(400f, 400f), null, null);
             holder.imageContainer.setOnClickListener(new View.OnClickListener() {
 
                 @Override
