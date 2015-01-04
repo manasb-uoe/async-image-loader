@@ -91,7 +91,7 @@ public class AsyncImageLoader {
      * Downloads the requested image asynchronously(if not already present in cache) and sets it on the provided ImageView.
      * @param imageView  ImageView on which bitmap needs to be set
      * @param url URL of the image that needs to be downloaded
-     * @param isResource boolean indicating whether the requested url is a resource id or an actual url
+     * @param isResource boolean indicating whether the provided url is a resource id or an actual url
      */
     public void displayImage(ImageView imageView, String url, boolean isResource) {
         imageViews.put(imageView, url);
@@ -109,7 +109,7 @@ public class AsyncImageLoader {
      * Downloads the requested image asynchronously(if not already present in cache) and sets it on the provided ImageView.
      * @param imageView  ImageView on which bitmap needs to be set
      * @param url URL of the image that needs to be downloaded
-     * @param isResource boolean indicating whether the requested url is a resource id or an actual url
+     * @param isResource boolean indicating whether the provided url is a resource id or an actual url
      * @param dimensions Target dimensions of the image (used for down-sampling the bitmap before loading into memory)
      * @param progressCallback A ProgressCallback is used to get progress while an image is being downloaded
      * @param loadCallback A LoadCallback is used to retrieve the requested bitmap.
@@ -129,7 +129,7 @@ public class AsyncImageLoader {
     /**
      * Downloads the requested image asynchronously(if not already present in cache) and returns it using the provided LoadCallback instance.
      * @param url URL of the image that needs to be downloaded
-     * @param isResource boolean indicating whether the requested url is a resource id or an actual url
+     * @param isResource boolean indicating whether the provided url is a resource id or an actual url
      * @param loadCallback A LoadCallback is used to retrieve the requested bitmap.
      */
     public void loadImage(String url, boolean isResource, LoadCallback loadCallback) {
@@ -149,7 +149,7 @@ public class AsyncImageLoader {
     /**
      * Downloads the requested image asynchronously(if not already present in cache) and returns it using the provided LoadCallback instance.
      * @param url URL of the image that needs to be downloaded
-     * @param isResource boolean indicating whether the requested url is a resource id or an actual url
+     * @param isResource boolean indicating whether the provided url is a resource id or an actual url
      * @param dimensions Target dimensions of the image (used for down-sampling the bitmap before loading into memory)
      * @param loadCallback A LoadCallback is used to retrieve the requested bitmap.
      * @param progressCallback A ProgressCallback is used to get progress while an image is being downloaded
