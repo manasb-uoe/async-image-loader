@@ -1,7 +1,7 @@
 #** Asynchronous Image Loader (Android) **#
 
 This library can be used for asynchronous image loading, displaying and caching (memory and disk). It also offers customization options and is well documented.   
-[Download the sample app here.](https://bitbucket.org/enthusiast94/asyncimageloader/downloads/asyncimageloader-sample_app.apk)
+[Download the sample app here.](https://bitbucket.org/enthusiast94/asyncimageloader/downloads/asyncimageloader-sample-app-debug.apk)
 
 ![Screenshot_2014-09-12-11-15-42.png](https://bitbucket.org/repo/LnzAa6/images/1539677683-Screenshot_2014-09-12-11-15-42.png) ![Screenshot_2014-09-12-11-16-42.png](https://bitbucket.org/repo/LnzAa6/images/1607332766-Screenshot_2014-09-12-11-16-42.png) ![Screenshot_2014-09-12-11-17-34.png](https://bitbucket.org/repo/LnzAa6/images/1681662346-Screenshot_2014-09-12-11-17-34.png)
 
@@ -13,7 +13,7 @@ This library can be used for asynchronous image loading, displaying and caching 
 
 #** How do I get set up? **#
 
-1. [Download asyncimageloader-library.aar](https://bitbucket.org/enthusiast94/asyncimageloader/downloads/asyncimageloader-library.aar)
+1. [Download asyncimageloader-library-release.aar](https://bitbucket.org/enthusiast94/asyncimageloader/downloads/asyncimageloader-library-release.aar)
 2. Put this .aar file in your Android project's `libs` subfolder.
 3. In your `build.gradle` specify the following and click sync project with Gradle files:
 
@@ -24,7 +24,7 @@ This library can be used for asynchronous image loading, displaying and caching 
 		}
 
 		dependencies {
-		    compile(name:'asyncimageloader-library', ext:'aar')
+		    compile(name:'asyncimageloader-library-release', ext:'aar')
 		}
 
 4. Add the following permissions to your `Android Manifest`: 
@@ -59,11 +59,13 @@ Note that these are the default values and you can change them in any way you li
 
 * Use the simplest version of `displayImage` method as follows:
 
-		AsyncImageLoader.getInstance().displayImage(imageView, url);
+		AsyncImageLoader.getInstance().displayImage(imageView, url, false);
+
+		> Note: The third argument in the above method indicates whether the provided url is a resource id or an actual url.   
 
 * If you want to provide target dimensions of the image so that a low resolution version of the image is loaded into memory, then you can specify dimensions using `ImageDimensions`: 
 		
-		AsyncImageLoader.getInstance().displayImage(imageView, url, new ImageDimensions(400f, 400f), null, null);
+		AsyncImageLoader.getInstance().displayImage(imageView, url, false, new ImageDimensions(400f, 400f), null, null);
 
 * If you want to get the progress of the image as it's being downloaded OR want to retrieve the loaded bitmap, then you can provide your own `ProgressCallback` and `LoadCallback` implementations instead of `null`:
 
@@ -83,7 +85,7 @@ Note that these are the default values and you can change them in any way you li
             }
         };
 
-		AsyncImageLoader.getInstance().displayImage(imageView, url, new ImageDimensions(400f, 400f), loadCallback, progressCallback);
+		AsyncImageLoader.getInstance().displayImage(imageView, url, false, new ImageDimensions(400f, 400f), loadCallback, progressCallback);
 
 ** 2. Asynchronously downloading an image and retrieving the bitmap: **
 
@@ -98,11 +100,11 @@ Note that these are the default values and you can change them in any way you li
             }
         };
 
-        AsyncImageLoader.getInstance().loadImage(url, loadCallback);
+        AsyncImageLoader.getInstance().loadImage(url, false, loadCallback);
 
 * If you want to provide target dimensions of the image so that a low resolution version of the image is loaded into memory, then you can specify dimensions using `ImageDimensions`: 
 		
-		AsyncImageLoader.getInstance().displayImage(url, new ImageDimensions(400f, 400f), loadCallback, null);
+		AsyncImageLoader.getInstance().loadImage(url, false, new ImageDimensions(400f, 400f), loadCallback, null);
 
 * If you want to get the progress of the image as it's being downloaded, then you can provide your own implementation of `ProgressCallback` as follows: 
 
@@ -113,7 +115,7 @@ Note that these are the default values and you can change them in any way you li
             }
         };
 
-        AsyncImageLoader.getInstance().loadImage(url, new ImageDimensions(400f, 400f), loadCallback, progressCallback);        
+        AsyncImageLoader.getInstance().loadImage(url, false, new ImageDimensions(400f, 400f), loadCallback, progressCallback);        
 
 ** 3. Clear cache: **
 
