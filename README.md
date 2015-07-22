@@ -1,17 +1,17 @@
-#** Asynchronous Image Loader (Android) **#
+# Asynchronous Image Loader (Android) 
 
 This library can be used for asynchronous image loading, displaying and caching (memory and disk). It also offers customization options and is well documented.   
 [Download the sample app here.](https://bitbucket.org/enthusiast94/asyncimageloader/downloads/asyncimageloader-sample-app-debug.apk)
 
 ![Screenshot_2014-09-12-11-15-42.png](https://bitbucket.org/repo/LnzAa6/images/1539677683-Screenshot_2014-09-12-11-15-42.png) ![Screenshot_2014-09-12-11-16-42.png](https://bitbucket.org/repo/LnzAa6/images/1607332766-Screenshot_2014-09-12-11-16-42.png) ![Screenshot_2014-09-12-11-17-34.png](https://bitbucket.org/repo/LnzAa6/images/1681662346-Screenshot_2014-09-12-11-17-34.png)
 
-#** Features **#
+### Features 
 
 * Asynchronous multithreaded image loading 
 * Various customization options using `AsyncImageLoaderConfig` (thread pool size, placeholder image, image downsampling, memory and file cache locations, etc.)
 * Retrieve progress as a percentage while an image is being downlaoded 
 
-#** How do I get set up? **#
+### How do I get set up? 
 
 1. [Download asyncimageloader-library-release.aar](https://bitbucket.org/enthusiast94/asyncimageloader/downloads/asyncimageloader-library-release.aar)
 2. Put this .aar file in your Android project's `libs` subfolder.
@@ -53,9 +53,9 @@ Note that these are the default values and you can change them in any way you li
 	   		}
 		} 
 
-#** How do I use it? **#
+### How do I use it?
 
-** 1. Asynchronously loading images in a `ListView` or `GridView`: **
+**1. Asynchronously loading images in a `ListView` or `GridView`:**
 
 * Use the simplest version of `displayImage` method as follows:
 
@@ -87,7 +87,7 @@ Note that these are the default values and you can change them in any way you li
 
 		AsyncImageLoader.getInstance().displayImage(imageView, url, false, new ImageDimensions(400f, 400f), loadCallback, progressCallback);
 
-** 2. Asynchronously downloading an image and retrieving the bitmap: **
+**2. Asynchronously downloading an image and retrieving the bitmap:**
 
 * Use the simplest version of `loadImage` as follows: 
 		
@@ -117,7 +117,7 @@ Note that these are the default values and you can change them in any way you li
 
         AsyncImageLoader.getInstance().loadImage(url, false, new ImageDimensions(400f, 400f), loadCallback, progressCallback);        
 
-** 3. Clear cache: **
+**3. Clear cache:**
 
 * Clear memory cache:
 
@@ -128,6 +128,6 @@ Note that these are the default values and you can change them in any way you li
             AsyncImageLoader.getInstance().clearFileCache();
 
 
-#** Developed by **#
+### Developed by 
 
 * Manas Bajaj - <manas.bajaj94@gmail.com>
